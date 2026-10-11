@@ -251,11 +251,89 @@ SAMPLE_QUESTIONS = [
         "explanation": "Let speed be V m/s, train length be L meters. L = 6V. Train passes platform: L + 150 = 15V. Substitute L: 6V + 150 = 15V => 9V = 150 => V = 150/9 = 50/3 m/s. Convert to km/h: (50/3) * (18/5) = 60 km/h.",
         "difficulty": "Medium",
         "marks": 1
+    },
+    {
+        "subject": "General Aptitude",
+        "topic": "Quantitative Aptitude",
+        "question_text": "A number is increased by 20% and then decreased by 20%. What is the net percentage change?",
+        "option_a": "No change",
+        "option_b": "4% decrease",
+        "option_c": "4% increase",
+        "option_d": "2% decrease",
+        "correct_option": "B",
+        "explanation": "Starting from 100, a 20% increase gives 120. Decreasing 120 by 20% gives 96, which is 4% less than the original 100.",
+        "difficulty": "Easy",
+        "marks": 1
+    },
+    {
+        "subject": "General Aptitude",
+        "topic": "Quantitative Aptitude",
+        "question_text": "The average of five consecutive integers is 18. What is the largest integer?",
+        "option_a": "18",
+        "option_b": "19",
+        "option_c": "20",
+        "option_d": "21",
+        "correct_option": "C",
+        "explanation": "For five consecutive integers, the average is the middle integer. The integers are 16, 17, 18, 19, and 20, so the largest is 20.",
+        "difficulty": "Easy",
+        "marks": 1
+    },
+    {
+        "subject": "General Aptitude",
+        "topic": "Logical Reasoning",
+        "question_text": "If all roses are flowers and some flowers fade quickly, which conclusion must be true?",
+        "option_a": "All roses fade quickly",
+        "option_b": "Some roses fade quickly",
+        "option_c": "All roses are flowers",
+        "option_d": "No flowers are roses",
+        "correct_option": "C",
+        "explanation": "The first statement directly says that all roses are flowers. The statement about some flowers fading does not establish whether those flowers include any roses.",
+        "difficulty": "Easy",
+        "marks": 1
+    },
+    {
+        "subject": "General Aptitude",
+        "topic": "Logical Reasoning",
+        "question_text": "Find the next number in the sequence: 2, 6, 12, 20, 30, __.",
+        "option_a": "36",
+        "option_b": "40",
+        "option_c": "42",
+        "option_d": "44",
+        "correct_option": "C",
+        "explanation": "The successive differences are 4, 6, 8, and 10. The next difference is 12, so the next term is 30 + 12 = 42.",
+        "difficulty": "Easy",
+        "marks": 1
+    },
+    {
+        "subject": "General Aptitude",
+        "topic": "Verbal Ability",
+        "question_text": "Choose the word closest in meaning to 'concise'.",
+        "option_a": "Brief",
+        "option_b": "Unclear",
+        "option_c": "Detailed",
+        "option_d": "Repeated",
+        "correct_option": "A",
+        "explanation": "'Concise' means giving information clearly in few words; its closest meaning here is 'brief'.",
+        "difficulty": "Easy",
+        "marks": 1
+    },
+    {
+        "subject": "General Aptitude",
+        "topic": "Verbal Ability",
+        "question_text": "Choose the grammatically correct sentence.",
+        "option_a": "Neither of the answers are correct.",
+        "option_b": "Neither of the answers is correct.",
+        "option_c": "Neither answers is correct.",
+        "option_d": "Neither of answers are correct.",
+        "correct_option": "B",
+        "explanation": "'Neither' is singular in this construction, so it takes the singular verb 'is'.",
+        "difficulty": "Easy",
+        "marks": 1
     }
 ]
 
 
-def seed_data(reset_demo_history=True):
+def seed_data(reset_demo_history=True, seed_demo_history=True):
     conn = get_connection()
     cursor = conn.cursor()
 
@@ -279,12 +357,17 @@ def seed_data(reset_demo_history=True):
         for q in SAMPLE_QUESTIONS:
             t_id = topic_ids.get((q["subject"], q["topic"]))
             if t_id:
-                cursor.execute("""
-                    INSERT OR IGNORE INTO questions 
-                    (topic_id, question_text, option_a, option_b, option_c, option_d, correct_option, explanation, difficulty, marks)
-                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-                """, (t_id, q["question_text"], q["option_a"], q["option_b"], q["option_c"], q["option_d"], 
-                      q["correct_option"], q["explanation"], q["difficulty"], q["marks"]))
+                cursor.execute(
+                    "SELECT 1 FROM questions WHERE topic_id = ? AND question_text = ?",
+                    (t_id, q["question_text"])
+                )
+                if cursor.fetchone() is None:
+                    cursor.execute("""
+                        INSERT INTO questions
+                        (topic_id, question_text, option_a, option_b, option_c, option_d, correct_option, explanation, difficulty, marks)
+                        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                    """, (t_id, q["question_text"], q["option_a"], q["option_b"], q["option_c"], q["option_d"],
+                          q["correct_option"], q["explanation"], q["difficulty"], q["marks"]))
 
         # 3. Create Demo User
         # Check if already exists
@@ -304,17 +387,18 @@ def seed_data(reset_demo_history=True):
             user_id = user_row[0]
             print(f"Demo user already exists with ID: {user_id}")
 
+        if not seed_demo_history:
+            conn.commit()
+            print("Data seeded successfully!")
+            return
+
         if reset_demo_history:
             cursor.execute("DELETE FROM user_attempts WHERE user_id = ?", (user_id,))
             cursor.execute("DELETE FROM revision_schedule WHERE user_id = ?", (user_id,))
             cursor.execute("DELETE FROM study_plans WHERE user_id = ?", (user_id,))
 
         # 4. Seed Synthetic Attempt Logs for the Demo User
-        # We want to create ~150 attempts over the last 30 days.
-        # Define success rates per subject to establish strengths and weaknesses
-        # Compiler Design & TOC will be weak (around 30-40% accuracy)
-        # OS & Databases will be strong (around 80-90% accuracy)
-        # Others will be average
+        # Define success rates per subject to establish strengths and weaknesses.
         subject_performance = {
             "Theory of Computation": 0.35,
             "Compiler Design": 0.40,
@@ -330,77 +414,63 @@ def seed_data(reset_demo_history=True):
             "Databases": 0.88
         }
 
-        # Let's select all inserted questions
+        # Select all inserted questions.
         cursor.execute("SELECT q.id, q.topic_id, t.name as topic_name, s.name as subject_name FROM questions q JOIN topics t ON q.topic_id = t.id JOIN subjects s ON t.subject_id = s.id")
         questions_db = [dict(row) for row in cursor.fetchall()]
 
+        today = datetime.datetime.now()
         if questions_db:
-            today = datetime.datetime.now()
             start_date = today - datetime.timedelta(days=30)
-            
-            # Let's generate 180 attempts
+
+            # Generate 180 attempts.
             for i in range(180):
                 q = random.choice(questions_db)
                 sub_name = q["subject_name"]
                 pass_rate = subject_performance.get(sub_name, 0.6)
-                
-                # Check correctness based on subject success rate
                 is_correct = 1 if random.random() < pass_rate else 0
-                
-                # Simulate options selected
-                correct_opt = 'A' # fallback
+
                 cursor.execute("SELECT correct_option FROM questions WHERE id = ?", (q["id"],))
-                c_opt_row = cursor.fetchone()
-                if c_opt_row:
-                    correct_opt = c_opt_row[0]
-                
+                correct_opt = cursor.fetchone()[0]
                 if is_correct:
                     selected_option = correct_opt
                 else:
-                    wrong_options = [opt for opt in ['A', 'B', 'C', 'D'] if opt != correct_opt]
+                    wrong_options = [opt for opt in ["A", "B", "C", "D"] if opt != correct_opt]
                     selected_option = random.choice(wrong_options)
-                
-                # Time spent: average time of 40-180 seconds
+
                 time_spent = random.randint(30, 180)
-                
-                # Attemped time spread over 30 days
                 days_ago = random.randint(0, 30)
                 hours_ago = random.randint(0, 23)
                 mins_ago = random.randint(0, 59)
                 attempt_time = start_date + datetime.timedelta(days=days_ago, hours=hours_ago, minutes=mins_ago)
-                
-                # Insert attempt
+
                 cursor.execute("""
                     INSERT INTO user_attempts (user_id, question_id, selected_option, is_correct, time_spent_seconds, attempted_at)
                     VALUES (?, ?, ?, ?, ?, ?)
                 """, (user_id, q["id"], selected_option, is_correct, time_spent, attempt_time.strftime("%Y-%m-%d %H:%M:%S")))
 
-            # 5. Populate Revision Schedules (Spaced Repetition)
-            # Create schedule entries for a few topics
-            cursor.execute("SELECT id FROM topics")
-            topic_rows = cursor.fetchall()
-            for r in topic_rows[:8]:
-                t_id = r[0]
-                # Some are due today, some in future
-                days_offset = random.choice([-2, -1, 0, 1, 2, 4, 8])
-                next_rev = (today + datetime.timedelta(days=days_offset)).strftime("%Y-%m-%d")
-                cursor.execute("""
-                    INSERT OR IGNORE INTO revision_schedule (user_id, topic_id, ease_factor, interval_days, repetitions, next_revision_date)
-                    VALUES (?, ?, ?, ?, ?, ?)
-                """, (user_id, t_id, random.uniform(1.8, 2.8), random.randint(1, 10), random.randint(1, 4), next_rev))
+        # 5. Populate Revision Schedules (Spaced Repetition)
+        cursor.execute("SELECT id FROM topics")
+        topic_rows = cursor.fetchall()
+        for r in topic_rows[:8]:
+            t_id = r[0]
+            days_offset = random.choice([-2, -1, 0, 1, 2, 4, 8])
+            next_rev = (today + datetime.timedelta(days=days_offset)).strftime("%Y-%m-%d")
+            cursor.execute("""
+                INSERT OR IGNORE INTO revision_schedule (user_id, topic_id, ease_factor, interval_days, repetitions, next_revision_date)
+                VALUES (?, ?, ?, ?, ?, ?)
+            """, (user_id, t_id, random.uniform(1.8, 2.8), random.randint(1, 10), random.randint(1, 4), next_rev))
 
-            # 6. Populate Study Plans for the next few days
-            for offset in range(-2, 3):
-                plan_date = (today + datetime.timedelta(days=offset)).strftime("%Y-%m-%d")
-                # Choose 2 random topics for each day
-                selected_topics = random.sample(topic_rows, 2)
-                for t in selected_topics:
-                    t_id = t[0]
-                    status = "Completed" if offset < 0 else ("Completed" if offset == 0 and random.random() > 0.5 else "Pending")
-                    cursor.execute("""
-                        INSERT OR IGNORE INTO study_plans (user_id, date, topic_id, allocated_minutes, status)
-                        VALUES (?, ?, ?, ?, ?)
-                    """, (user_id, plan_date, t_id, random.choice([60, 90, 120]), status))
+        # 6. Populate Study Plans for the next few days
+        for offset in range(-2, 3):
+            plan_date = (today + datetime.timedelta(days=offset)).strftime("%Y-%m-%d")
+            selected_topics = random.sample(topic_rows, 2)
+            for t in selected_topics:
+                t_id = t[0]
+                status = "Completed" if offset < 0 else ("Completed" if offset == 0 and random.random() > 0.5 else "Pending")
+                cursor.execute("""
+                    INSERT OR IGNORE INTO study_plans (user_id, date, topic_id, allocated_minutes, status)
+                    VALUES (?, ?, ?, ?, ?)
+                """, (user_id, plan_date, t_id, random.choice([60, 90, 120]), status))
 
         conn.commit()
         print("Data seeded successfully!")

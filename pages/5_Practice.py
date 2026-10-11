@@ -66,7 +66,7 @@ def reset_question():
 
 # Button to load a new question
 col_act1, col_act2 = st.columns([1, 4])
-previous_question_id = None
+previous_question_id = st.session_state.pop("practice_previous_question_id", None)
 with col_act1:
     if st.button("New Question 🔄", use_container_width=True):
         current_question = st.session_state.practice_q
@@ -239,5 +239,6 @@ elif st.session_state.practice_q is not None:
         
         # Next button
         if st.button("Load Next Question ➡️"):
+            st.session_state.practice_previous_question_id = q["id"]
             reset_question()
             st.rerun()

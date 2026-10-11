@@ -41,12 +41,29 @@ def has_seed_data():
         conn.close()
 
 
+def has_general_aptitude_question_pool():
+    conn = get_connection()
+    try:
+        count = conn.execute("""
+            SELECT COUNT(q.id)
+            FROM questions q
+            JOIN topics t ON q.topic_id = t.id
+            JOIN subjects s ON t.subject_id = s.id
+            WHERE s.name = 'General Aptitude'
+        """).fetchone()[0]
+        return count >= 7
+    finally:
+        conn.close()
+
+
 # Ensure the database schema and advertised demo data exist.
 @st.cache_resource
 def run_db_initialization():
     init_db()
     if not has_seed_data():
         seed_data(reset_demo_history=False)
+    elif not has_general_aptitude_question_pool():
+        seed_data(reset_demo_history=False, seed_demo_history=False)
 
     if not has_seed_data():
         raise RuntimeError("Database seeding did not create the required demo data.")
