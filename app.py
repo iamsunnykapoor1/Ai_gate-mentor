@@ -14,7 +14,8 @@ st.set_page_config(
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
 from utils.auth import init_session_state, login_user, register_user, set_login_session, logout_user
-from database.connection import init_db
+from database.connection import init_db, get_connection
+from database.seed import seed_data
 
 # Load custom CSS
 def load_css():
@@ -27,10 +28,28 @@ def load_css():
 init_session_state()
 load_css()
 
-# Ensure Database is initialized on launch
+def has_seed_data():
+    conn = get_connection()
+    try:
+        return bool(conn.execute("""
+            SELECT EXISTS(SELECT 1 FROM users WHERE username = 'demo')
+                AND EXISTS(SELECT 1 FROM subjects)
+                AND EXISTS(SELECT 1 FROM topics)
+                AND EXISTS(SELECT 1 FROM questions)
+        """).fetchone()[0])
+    finally:
+        conn.close()
+
+
+# Ensure the database schema and advertised demo data exist.
 @st.cache_resource
 def run_db_initialization():
     init_db()
+    if not has_seed_data():
+        seed_data(reset_demo_history=False)
+
+    if not has_seed_data():
+        raise RuntimeError("Database seeding did not create the required demo data.")
 run_db_initialization()
 
 # Render Authentication / Landing Screen if not logged in

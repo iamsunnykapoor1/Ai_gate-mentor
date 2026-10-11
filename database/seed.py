@@ -255,7 +255,7 @@ SAMPLE_QUESTIONS = [
 ]
 
 
-def seed_data():
+def seed_data(reset_demo_history=True):
     conn = get_connection()
     cursor = conn.cursor()
 
@@ -304,10 +304,10 @@ def seed_data():
             user_id = user_row[0]
             print(f"Demo user already exists with ID: {user_id}")
 
-        # Clear existing attempts and schedules for demo user to reload fresh synthetic logs
-        cursor.execute("DELETE FROM user_attempts WHERE user_id = ?", (user_id,))
-        cursor.execute("DELETE FROM revision_schedule WHERE user_id = ?", (user_id,))
-        cursor.execute("DELETE FROM study_plans WHERE user_id = ?", (user_id,))
+        if reset_demo_history:
+            cursor.execute("DELETE FROM user_attempts WHERE user_id = ?", (user_id,))
+            cursor.execute("DELETE FROM revision_schedule WHERE user_id = ?", (user_id,))
+            cursor.execute("DELETE FROM study_plans WHERE user_id = ?", (user_id,))
 
         # 4. Seed Synthetic Attempt Logs for the Demo User
         # We want to create ~150 attempts over the last 30 days.
@@ -404,9 +404,9 @@ def seed_data():
 
         conn.commit()
         print("Data seeded successfully!")
-    except Exception as e:
+    except Exception:
         conn.rollback()
-        print(f"Error seeding data: {e}")
+        raise
     finally:
         conn.close()
 

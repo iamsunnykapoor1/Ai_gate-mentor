@@ -147,7 +147,7 @@ def draw_accuracy_trend(df: pd.DataFrame):
             gridcolor=GRID_COLOR,
             tickfont=dict(color="#64748B"),
             range=[0, 105],
-            suffix="%"
+            ticksuffix="%"
         )
     )
     return fig
@@ -200,15 +200,13 @@ def draw_time_vs_accuracy(df: pd.DataFrame):
         margin=dict(l=10, r=10, t=10, b=10),
         height=320,
         xaxis=dict(
-            title="Avg Time Spent per Question (seconds)",
-            titlefont=dict(color="#64748B", size=11),
+            title=dict(text="Avg Time Spent per Question (seconds)", font=dict(color="#64748B", size=11)),
             showgrid=True,
             gridcolor=GRID_COLOR,
             tickfont=dict(color="#64748B")
         ),
         yaxis=dict(
-            title="Accuracy (%)",
-            titlefont=dict(color="#64748B", size=11),
+            title=dict(text="Accuracy (%)", font=dict(color="#64748B", size=11)),
             showgrid=True,
             gridcolor=GRID_COLOR,
             tickfont=dict(color="#64748B"),
@@ -310,4 +308,3 @@ def draw_activity_heatmap(df_attempts: pd.DataFrame):
         yaxis=dict(showgrid=False, tickfont=dict(color=TEXT_COLOR), showticklabels=True),
     )
     return fig
-

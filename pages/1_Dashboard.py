@@ -38,7 +38,12 @@ def get_user_stats(user_id):
     stats = dict(row) if row else {"total_solved": 0, "correct_solved": 0, "avg_speed": 0}
     
     # 2. Total unique topics attempted
-    cursor.execute("SELECT COUNT(DISTINCT topic_id) FROM user_attempts WHERE user_id = ?", (user_id,))
+    cursor.execute("""
+        SELECT COUNT(DISTINCT q.topic_id)
+        FROM user_attempts a
+        JOIN questions q ON q.id = a.question_id
+        WHERE a.user_id = ?
+    """, (user_id,))
     attempted_topics = cursor.fetchone()[0] or 0
     
     # 3. Total topics in system

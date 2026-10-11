@@ -105,7 +105,7 @@ The score prediction utilizes Scikit-Learn **Random Forest Regressors** trained 
    ```
 
 3. **Initialize Database & Seed Data**:
-   This command creates the database tables, seeds standard GATE Computer Science subjects and topics, loads a sample pool of mock questions, and generates 30 days of active practice history for the default demo user.
+   The app initializes the database schema and seeds the GATE Computer Science subjects, topics, sample questions, and demo account on first launch when they are missing. To manually refresh the demo user's synthetic history, run:
    ```bash
    python database/seed.py
    ```

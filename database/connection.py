@@ -23,8 +23,9 @@ def init_db():
         conn.executescript(schema_sql)
         conn.commit()
         print("Database initialized successfully.")
-    except Exception as e:
-        print(f"Error initializing database: {e}")
+    except Exception:
+        conn.rollback()
+        raise
     finally:
         conn.close()
 
