@@ -59,23 +59,19 @@ with tab_whatif:
         rank_diff = real_rank - sim_rank # positive means rank improved (smaller number)
         
         # Simulated display card
-        st.markdown("<div class='metric-card glowing-card' style='text-align: center; margin-top: 15px;'>", unsafe_allow_html=True)
         st.markdown("<div class='metric-label'>Simulated GATE Score</div>", unsafe_allow_html=True)
         st.markdown(f"<div class='metric-value metric-value-accent'>{sim_score}</div>", unsafe_allow_html=True)
         if score_diff >= 0:
             st.markdown(f"<p style='color: #34D399; font-size: 0.9rem; margin-top: 5px;'>📈 +{score_diff} points from actual</p>", unsafe_allow_html=True)
         else:
             st.markdown(f"<p style='color: #F87171; font-size: 0.9rem; margin-top: 5px;'>📉 {score_diff} points from actual</p>", unsafe_allow_html=True)
-        st.markdown("</div>", unsafe_allow_html=True)
         
-        st.markdown("<div class='metric-card glowing-card' style='text-align: center;'>", unsafe_allow_html=True)
         st.markdown("<div class='metric-label'>Simulated All India Rank</div>", unsafe_allow_html=True)
         st.markdown(f"<div class='metric-value metric-value-green'>#{sim_rank:,}</div>", unsafe_allow_html=True)
         if rank_diff >= 0:
             st.markdown(f"<p style='color: #34D399; font-size: 0.9rem; margin-top: 5px;'>🚀 Improved by {rank_diff:,} spots</p>", unsafe_allow_html=True)
         else:
             st.markdown(f"<p style='color: #F87171; font-size: 0.9rem; margin-top: 5px;'>🔻 Declined by {abs(rank_diff):,} spots</p>", unsafe_allow_html=True)
-        st.markdown("</div>", unsafe_allow_html=True)
 
 
 # ==================== PEER BENCHMARKING TAB ====================
@@ -176,7 +172,7 @@ with tab_coach:
     )
     
     if coach_query != "Select a question...":
-        st.markdown("<div class='metric-card' style='background: rgba(30, 41, 59, 0.2); border-left: 4px solid #A855F7;'>", unsafe_allow_html=True)
+
         st.markdown(f"<h5>👨‍🏫 Coach Response:</h5>", unsafe_allow_html=True)
         
         conn = get_connection()
@@ -270,5 +266,3 @@ with tab_coach:
                     * **Time Bank**: In mock exams, solve these questions first. Doing so builds immediate momentum and saves time for tougher sections.
                     * **Anchor Marks**: These topics represent your guaranteed marks. Ensure you solve standard GATE papers to check if you maintain this accuracy under pressure.
                     """)
-        
-        st.markdown("</div>", unsafe_allow_html=True)

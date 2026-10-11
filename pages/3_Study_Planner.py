@@ -136,7 +136,6 @@ st.markdown("### 💡 Recommended Next Steps")
 col_rec1, col_rec2 = st.columns(2)
 
 with col_rec1:
-    st.markdown("<div class='metric-card' style='height: 250px;'>", unsafe_allow_html=True)
     st.markdown("<h4>📚 Subject Focus Recommendations</h4>", unsafe_allow_html=True)
     
     # Query topics with zero attempts or lowest accuracy that are not in today's study plan
@@ -176,10 +175,8 @@ with col_rec1:
             st.markdown("<p style='color: #64748B; font-size: 0.82rem; margin-top:-5px;'>Unattempted or critical low accuracy. Click practice to improve.</p>", unsafe_allow_html=True)
     else:
         st.write("You have successfully attempted all available subjects! Take a mock exam.")
-    st.markdown("</div>", unsafe_allow_html=True)
 
 with col_rec2:
-    st.markdown("<div class='metric-card' style='height: 250px;'>", unsafe_allow_html=True)
     st.markdown("<h4>📝 Recommended Practice Tests</h4>", unsafe_allow_html=True)
     
     # Simple recommendation rules
@@ -191,4 +188,3 @@ with col_rec2:
         st.write("✨ **Topic Practice**: Practice 5 questions in your weakest topic to boost your accuracy.")
         st.write("✨ **Speed Practice**: Solve 3 Easy difficulty questions to optimize solve-speed.")
         st.write("✨ **Memory Drill**: Complete your due revisions today to lock down learning.")
-    st.markdown("</div>", unsafe_allow_html=True)

@@ -142,7 +142,6 @@ with col_kpi4:
 col_mid1, col_mid2 = st.columns([0.45, 0.55])
 
 with col_mid1:
-    st.markdown("<div class='metric-card' style='height: 380px; text-align: center;'>", unsafe_allow_html=True)
     st.markdown("<h4>Ready-to-Test Meter</h4>", unsafe_allow_html=True)
     fig_gauge = draw_readiness_gauge(readiness_pct)
     st.plotly_chart(fig_gauge, use_container_width=True, config={'displayModeBar': False})
@@ -154,10 +153,8 @@ with col_mid1:
         </p>
     </div>
     """, unsafe_allow_html=True)
-    st.markdown("</div>", unsafe_allow_html=True)
 
 with col_mid2:
-    st.markdown("<div class='metric-card' style='height: 380px;'>", unsafe_allow_html=True)
     st.markdown("<h4>🧠 AI Study Coach Feedback</h4>", unsafe_allow_html=True)
     
     # Simple rule-based coach recommendations based on seeded values
@@ -189,27 +186,21 @@ with col_mid2:
         else:
             coach_feedback.append("📈 **Targeted Revisions**: Focus on spaced repetition cards due this week to lock down concepts in memory.")
 
-    st.markdown("<div style='margin-top: 15px;'>", unsafe_allow_html=True)
     for feedback in coach_feedback:
         st.markdown(f"<div style='background: rgba(255,255,255,0.03); padding: 12px; border-radius: 8px; border-left: 3px solid #6366F1; margin-bottom: 12px; font-size: 0.92rem; color: #E2E8F0;'>{feedback}</div>", unsafe_allow_html=True)
-    st.markdown("</div>", unsafe_allow_html=True)
-    st.markdown("</div>", unsafe_allow_html=True)
 
 # Bottom Section: Subject Mastery & Progress Heatmap
 col_bot1, col_bot2 = st.columns([0.5, 0.5])
 
 with col_bot1:
-    st.markdown("<div class='metric-card' style='height: 380px;'>", unsafe_allow_html=True)
     st.markdown("<h4>Subject Mastery Analysis</h4>", unsafe_allow_html=True)
     if not df_subject.empty:
         fig_radar = draw_subject_radar(df_subject)
         st.plotly_chart(fig_radar, use_container_width=True, config={'displayModeBar': False})
     else:
         st.info("Attempt questions in the Practice Workspace to view your subject radar chart.")
-    st.markdown("</div>", unsafe_allow_html=True)
 
 with col_bot2:
-    st.markdown("<div class='metric-card' style='height: 380px;'>", unsafe_allow_html=True)
     st.markdown("<h4>📅 Daily Consistency Heatmap</h4>", unsafe_allow_html=True)
     fig_heatmap = draw_activity_heatmap(df_heatmap)
     st.plotly_chart(fig_heatmap, use_container_width=True, config={'displayModeBar': False})
@@ -218,4 +209,3 @@ with col_bot2:
         This heat grid plots daily practice volume over the past 5 weeks (35 days). Keep the streak green!
     </div>
     """, unsafe_allow_html=True)
-    st.markdown("</div>", unsafe_allow_html=True)

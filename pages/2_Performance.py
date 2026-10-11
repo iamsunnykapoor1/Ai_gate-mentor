@@ -80,7 +80,6 @@ else:
     col1, col2 = st.columns([0.45, 0.55])
     
     with col1:
-        st.markdown("<div class='metric-card' style='height: 380px; overflow-y: auto;'>", unsafe_allow_html=True)
         st.markdown("<h4>🔍 Topic strength breakdown</h4>", unsafe_allow_html=True)
         
         tab_weak, tab_strong, tab_moderate = st.tabs([
@@ -124,31 +123,24 @@ else:
                         Accuracy: <span style="color: #FBBF24; font-weight: 600;">{row['accuracy']:.1f}%</span> | Solved: {row['total_attempts']} | Speed: {int(row['avg_time_spent'])}s
                     </div>
                     """, unsafe_allow_html=True)
-        st.markdown("</div>", unsafe_allow_html=True)
         
     with col2:
-        st.markdown("<div class='metric-card' style='height: 380px;'>", unsafe_allow_html=True)
         st.markdown("<h4>📈 Accuracy Improvement Trend</h4>", unsafe_allow_html=True)
         fig_trend = draw_accuracy_trend(df_trend)
         st.plotly_chart(fig_trend, use_container_width=True, config={'displayModeBar': False})
-        st.markdown("</div>", unsafe_allow_html=True)
 
     # Middle Row: Bubble Plot & Solved bar chart
     col_mid1, col_mid2 = st.columns([0.55, 0.45])
     
     with col_mid1:
-        st.markdown("<div class='metric-card' style='height: 380px;'>", unsafe_allow_html=True)
         st.markdown("<h4>⚡ Solve Time vs. Topic Accuracy</h4>", unsafe_allow_html=True)
         fig_bubble = draw_time_vs_accuracy(df_topics)
         st.plotly_chart(fig_bubble, use_container_width=True, config={'displayModeBar': False})
-        st.markdown("</div>", unsafe_allow_html=True)
         
     with col_mid2:
-        st.markdown("<div class='metric-card' style='height: 380px;'>", unsafe_allow_html=True)
         st.markdown("<h4>📋 Syllabus Volume per Subject</h4>", unsafe_allow_html=True)
         fig_solved = draw_solved_distribution(df_subject_solved)
         st.plotly_chart(fig_solved, use_container_width=True, config={'displayModeBar': False})
-        st.markdown("</div>", unsafe_allow_html=True)
 
     # Detailed Table
     st.markdown("### Detailed Topic Mastery Grid")
