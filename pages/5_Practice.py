@@ -59,17 +59,23 @@ with col_filt3:
 # Reset current question if filters change
 def reset_question():
     st.session_state.practice_q = None
+    st.session_state.practice_start_time = None
     st.session_state.practice_submitted = False
     st.session_state.practice_feedback = {}
+    st.session_state.pop("practice_answer", None)
 
 # Button to load a new question
 col_act1, col_act2 = st.columns([1, 4])
+previous_question_id = None
 with col_act1:
     if st.button("New Question 🔄", use_container_width=True):
+        current_question = st.session_state.practice_q
+        if isinstance(current_question, dict):
+            previous_question_id = current_question["id"]
         reset_question()
 
 # Fetch a question matching criteria
-def fetch_matching_question(user_id, subject, topic, difficulty):
+def fetch_matching_question(user_id, subject, topic, difficulty, exclude_question_id=None):
     conn = get_connection()
     cursor = conn.cursor()
     
@@ -91,6 +97,9 @@ def fetch_matching_question(user_id, subject, topic, difficulty):
     if difficulty != "All":
         query += " AND q.difficulty = ?"
         params.append(difficulty)
+    if exclude_question_id is not None:
+        query += " AND q.id != ?"
+        params.append(exclude_question_id)
         
     # Order by whether the user has attempted it or not (attempted last, unattempted first)
     query += """
@@ -107,7 +116,18 @@ def fetch_matching_question(user_id, subject, topic, difficulty):
 
 # Load question if not loaded
 if st.session_state.practice_q is None:
-    q = fetch_matching_question(st.session_state.user_id, selected_subject, selected_topic, selected_diff)
+    q = fetch_matching_question(
+        st.session_state.user_id,
+        selected_subject,
+        selected_topic,
+        selected_diff,
+        exclude_question_id=previous_question_id
+    )
+    if q is None and previous_question_id is not None:
+        q = fetch_matching_question(st.session_state.user_id, selected_subject, selected_topic, selected_diff)
+        if q and q["id"] == previous_question_id:
+            st.info("This is the only question available for the selected filters.")
+
     if q:
         st.session_state.practice_q = q
         st.session_state.practice_start_time = time.time()
@@ -153,7 +173,8 @@ elif st.session_state.practice_q is not None:
         "Select your answer:", 
         options=["A", "B", "C", "D"], 
         format_func=lambda x: f"({x})  {options[x]}",
-        disabled=st.session_state.practice_submitted
+        disabled=st.session_state.practice_submitted,
+        key="practice_answer"
     )
     
     # Action buttons
